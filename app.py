@@ -3,6 +3,7 @@ import mediapipe as mp
 import numpy as np
 import cv2
 from io import BytesIO
+import os
 
 app = Flask(__name__)
 
@@ -44,4 +45,5 @@ def process_image():
     })
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
