@@ -1,0 +1,4 @@
+Flask
+mediapipe
+numpy
+opencv-python-headless
