@@ -17,26 +17,34 @@ def process_image():
     image_np = np.frombuffer(image_stream, np.uint8)
     image = cv2.imdecode(image_np, cv2.IMREAD_COLOR)
 
+    # Define custom drawing specifications
+    white_landmark_drawing_spec = mp.solutions.drawing_utils.DrawingSpec(color=(255, 255, 255), thickness=2, circle_radius=2)
+    white_connection_drawing_spec = mp.solutions.drawing_utils.DrawingSpec(color=(255, 255, 255), thickness=2)
+    
     # Process the image using MediaPipe
     results = pose.process(image)
-
+    
     # Draw the pose landmarks on the image
     if results.pose_landmarks:
-        mp.solutions.drawing_utils.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
-
-    # Convert the image back to a format suitable for sending via HTTP
-    _, img_encoded = cv2.imencode('.jpg', image)
-    img_bytes = img_encoded.tobytes()
-
-    # Extract keypoints data
-    keypoints = []
-    for landmark in results.pose_landmarks.landmark:
-        keypoints.append({
-            'x': landmark.x,
-            'y': landmark.y,
-            'z': landmark.z,
-            'visibility': landmark.visibility
-        })
+        mp.solutions.drawing_utils.draw_landmarks(
+            image, 
+            results.pose_landmarks, 
+            mp_pose.POSE_CONNECTIONS,
+            landmark_drawing_spec=white_landmark_drawing_spec,
+            connection_drawing_spec=white_connection_drawing_spec
+        )
+    
+        # Extract keypoints data
+        keypoints = []
+        for landmark in results.pose_landmarks.landmark:
+            keypoints.append({
+                'x': landmark.x,
+                'y': landmark.y,
+                'z': landmark.z,
+                'visibility': landmark.visibility
+            })
+    else:
+        keypoints = []
 
     # Send the processed image and keypoints data as response
     return jsonify({
