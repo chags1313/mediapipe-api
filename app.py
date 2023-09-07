@@ -34,7 +34,7 @@ def process_image():
             )
 
         # Convert the cartoon image back to a format suitable for sending via HTTP
-        _, img_encoded = cv2.imencode('.jpg', cartoon_image)
+        _, img_encoded = cv2.imencode('.jpg', image)
         img_bytes = img_encoded.tobytes()
 
         # Extract keypoints data
