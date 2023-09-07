@@ -12,27 +12,6 @@ pose = mp_pose.Pose()
 white_landmark_drawing_spec = mp.solutions.drawing_utils.DrawingSpec(color=(255, 255, 255), thickness=2, circle_radius=2)
 white_connection_drawing_spec = mp.solutions.drawing_utils.DrawingSpec(color=(255, 255, 255), thickness=2)
 
-def cartoonize_image(img):
-    # Convert the image to grayscale
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    
-    # Apply a median blur to reduce image noise
-    gray = cv2.medianBlur(gray, 5)
-    
-    # Detect edges using adaptive thresholding
-    edges = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 9, 9)
-    
-    # Convert the original image to a color cartoon version
-    color = cv2.bilateralFilter(img, 9, 250, 250)
-    
-    # Convert edges to color
-    edges_colored = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
-    
-    # Combine the color cartoon image and edges
-    cartoon = cv2.bitwise_and(color, edges_colored)
-    
-    return cartoon
-
 @app.route('/process_image', methods=['POST'])
 def process_image():
     try:
@@ -44,13 +23,10 @@ def process_image():
         # Process the image using MediaPipe
         results = pose.process(image)
 
-        # Apply cartoon effect
-        cartoon_image = cartoonize_image(image)
-
         # Draw the pose landmarks on the cartoon image
         if results.pose_landmarks:
             mp.solutions.drawing_utils.draw_landmarks(
-                cartoon_image, 
+                image, 
                 results.pose_landmarks, 
                 mp_pose.POSE_CONNECTIONS,
                 landmark_drawing_spec=white_landmark_drawing_spec,
