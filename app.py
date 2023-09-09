@@ -15,9 +15,17 @@ white_connection_drawing_spec = mp.solutions.drawing_utils.DrawingSpec(color=(25
 @app.route('/process_image', methods=['POST'])
 def process_image():
     try:
-        # Get the image from the request
-        image_stream = request.files['image'].read()
-        image_np = np.frombuffer(image_stream, np.uint8)
+        # Check if an image URL is provided
+        image_url = request.json.get('image_url', None)
+        if image_url:
+            response = requests.get(image_url)
+            response.raise_for_status()  # Raise an error for bad responses
+            image_np = np.frombuffer(response.content, np.uint8)
+        else:
+            # Get the image from the request if direct image data is sent
+            image_stream = request.files['image'].read()
+            image_np = np.frombuffer(image_stream, np.uint8)
+
         image = cv2.imdecode(image_np, cv2.IMREAD_COLOR)
 
         # Process the image using MediaPipe
